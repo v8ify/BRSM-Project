@@ -1,0 +1,191 @@
+
+===========================================================================
+  PER-LEVEL INFERENTIAL ANALYSIS (LEVELS 1-10)
+===========================================================================
+
+  --- LEVEL 1 RESULTS ---
+
+Descriptive Statistics - Level 1:
+                        mean     std  count
+target_count device                       
+multiple     lab     1992.7   709.8     16
+             phone   2729.8  3059.5     16
+single       lab     2328.1  1232.7     21
+             phone   1614.7   782.6     21
+  Modality (single  ): W=   5.0, p=0.000010 ***
+  Modality (multiple): W=  56.0, p=0.561890 ns
+  Load (phone   ): U= 162.5, p=0.878159 ns
+  Load (lab     ): U= 192.0, p=0.471255 ns
+
+  --- LEVEL 2 RESULTS ---
+
+Descriptive Statistics - Level 2:
+                        mean    std  count
+target_count device                      
+multiple     lab     2074.7  765.0     16
+             phone   1178.8  173.1     16
+single       lab     1827.8  559.8     21
+             phone   1157.2  144.8     21
+  Modality (single  ): W=   5.0, p=0.000010 ***
+  Modality (multiple): W=   2.0, p=0.000092 ***
+  Load (phone   ): U= 172.0, p=0.914546 ns
+  Load (lab     ): U= 139.0, p=0.382269 ns
+
+  --- LEVEL 3 RESULTS ---
+
+Descriptive Statistics - Level 3:
+                        mean     std  count
+target_count device                       
+multiple     lab     2514.1  1972.6     16
+             phone   1586.5   449.1     16
+single       lab     1555.1   424.3     21
+             phone   1952.3  1297.1     21
+  Modality (single  ): W=  87.0, p=0.337660 ns
+  Modality (multiple): W=  19.0, p=0.009186 **
+  Load (phone   ): U= 173.0, p=0.890262 ns
+  Load (lab     ): U=  91.0, p=0.019014 *
+
+  --- LEVEL 4 RESULTS ---
+
+Descriptive Statistics - Level 4:
+                        mean     std  count
+target_count device                       
+multiple     lab     1672.6   369.9     16
+             phone   2002.9  1190.1     16
+single       lab     1389.1   293.0     21
+             phone   2871.4  1367.5     21
+  Modality (single  ): W=   0.0, p=0.000001 ***
+  Modality (multiple): W=  54.0, p=0.495422 ns
+  Load (phone   ): U= 265.0, p=0.003091 **
+  Load (lab     ): U=  81.0, p=0.008006 **
+
+  --- LEVEL 5 RESULTS ---
+
+Descriptive Statistics - Level 5:
+                        mean    std  count
+target_count device                      
+multiple     lab     1626.4  436.3     16
+             phone   2017.1  988.8     16
+single       lab     1534.6  375.7     21
+             phone   1894.3  512.5     21
+  Modality (single  ): W=  42.0, p=0.009016 **
+  Modality (multiple): W=  42.0, p=0.192810 ns
+  Load (phone   ): U= 184.0, p=0.634636 ns
+  Load (lab     ): U= 148.0, p=0.549966 ns
+
+  --- LEVEL 6 RESULTS ---
+
+Descriptive Statistics - Level 6:
+                        mean     std  count
+target_count device                       
+multiple     lab     1488.7   324.9     16
+             phone   2364.1  2774.1     16
+single       lab     1567.0   518.6     21
+             phone   2018.0   701.4     21
+  Modality (single  ): W=  47.0, p=0.015780 *
+  Modality (multiple): W=  63.0, p=0.820892 ns
+  Load (phone   ): U= 232.0, p=0.051555 ns
+  Load (lab     ): U= 159.0, p=0.794413 ns
+
+  --- LEVEL 7 RESULTS ---
+
+Descriptive Statistics - Level 7:
+                        mean     std  count
+target_count device                       
+multiple     lab     1493.8   281.0     16
+             phone   1481.9   370.0     16
+single       lab     1551.3   470.8     21
+             phone   3416.7  1978.5     21
+  Modality (single  ): W=   6.0, p=0.000013 ***
+  Modality (multiple): W=  67.0, p=0.979950 ns
+  Load (phone   ): U= 303.0, p=0.000037 ***
+  Load (lab     ): U= 168.0, p=1.000000 ns
+
+  --- LEVEL 8 RESULTS ---
+
+Descriptive Statistics - Level 8:
+                        mean    std  count
+target_count device                      
+multiple     lab     1309.9  192.5     16
+             phone   1488.0  264.1     16
+single       lab     1453.8  232.0     21
+             phone   1739.6  390.8     21
+  Modality (single  ): W=  40.0, p=0.007101 **
+  Modality (multiple): W=  24.0, p=0.021393 *
+  Load (phone   ): U= 226.0, p=0.077921 ns
+  Load (lab     ): U= 224.0, p=0.088856 ns
+
+  --- LEVEL 9 RESULTS ---
+
+Descriptive Statistics - Level 9:
+                        mean    std  count
+target_count device                      
+multiple     lab     1494.2  579.5     16
+             phone   1341.8  225.7     16
+single       lab     1619.3  538.7     21
+             phone   1812.0  699.9     21
+  Modality (single  ): W=  88.0, p=0.355416 ns
+  Modality (multiple): W=  54.0, p=0.495422 ns
+  Load (phone   ): U= 265.0, p=0.003087 **
+  Load (lab     ): U= 207.0, p=0.237884 ns
+
+  --- LEVEL 10 RESULTS ---
+
+Descriptive Statistics - Level 10:
+                        mean     std  count
+target_count device                       
+multiple     lab     1351.9   253.9     16
+             phone   1517.2   381.1     11
+single       lab     1356.3   271.4     21
+             phone   4796.0  2360.7     21
+  Modality (single  ): W=   0.0, p=0.000001 ***
+  Modality (multiple): W=  27.0, p=0.637695 ns
+  Load (phone   ): U= 225.0, p=0.000015 ***
+  Load (lab     ): U= 166.0, p=0.963322 ns
+
+===========================================================================
+  FINAL RESULTS SUMMARY TABLE
+===========================================================================
+ Level Analysis    Group         Test  Stat        p Sig
+     1 Modality   single     Wilcoxon   5.0 0.000010 ***
+     1 Modality multiple     Wilcoxon  56.0 0.561890  ns
+     1     Load    phone Mann-Whitney 162.5 0.878159  ns
+     1     Load      lab Mann-Whitney 192.0 0.471255  ns
+     2 Modality   single     Wilcoxon   5.0 0.000010 ***
+     2 Modality multiple     Wilcoxon   2.0 0.000092 ***
+     2     Load    phone Mann-Whitney 172.0 0.914546  ns
+     2     Load      lab Mann-Whitney 139.0 0.382269  ns
+     3 Modality   single     Wilcoxon  87.0 0.337660  ns
+     3 Modality multiple     Wilcoxon  19.0 0.009186  **
+     3     Load    phone Mann-Whitney 173.0 0.890262  ns
+     3     Load      lab Mann-Whitney  91.0 0.019014   *
+     4 Modality   single     Wilcoxon   0.0 0.000001 ***
+     4 Modality multiple     Wilcoxon  54.0 0.495422  ns
+     4     Load    phone Mann-Whitney 265.0 0.003091  **
+     4     Load      lab Mann-Whitney  81.0 0.008006  **
+     5 Modality   single     Wilcoxon  42.0 0.009016  **
+     5 Modality multiple     Wilcoxon  42.0 0.192810  ns
+     5     Load    phone Mann-Whitney 184.0 0.634636  ns
+     5     Load      lab Mann-Whitney 148.0 0.549966  ns
+     6 Modality   single     Wilcoxon  47.0 0.015780   *
+     6 Modality multiple     Wilcoxon  63.0 0.820892  ns
+     6     Load    phone Mann-Whitney 232.0 0.051555  ns
+     6     Load      lab Mann-Whitney 159.0 0.794413  ns
+     7 Modality   single     Wilcoxon   6.0 0.000013 ***
+     7 Modality multiple     Wilcoxon  67.0 0.979950  ns
+     7     Load    phone Mann-Whitney 303.0 0.000037 ***
+     7     Load      lab Mann-Whitney 168.0 1.000000  ns
+     8 Modality   single     Wilcoxon  40.0 0.007101  **
+     8 Modality multiple     Wilcoxon  24.0 0.021393   *
+     8     Load    phone Mann-Whitney 226.0 0.077921  ns
+     8     Load      lab Mann-Whitney 224.0 0.088856  ns
+     9 Modality   single     Wilcoxon  88.0 0.355416  ns
+     9 Modality multiple     Wilcoxon  54.0 0.495422  ns
+     9     Load    phone Mann-Whitney 265.0 0.003087  **
+     9     Load      lab Mann-Whitney 207.0 0.237884  ns
+    10 Modality   single     Wilcoxon   0.0 0.000001 ***
+    10 Modality multiple     Wilcoxon  27.0 0.637695  ns
+    10     Load    phone Mann-Whitney 225.0 0.000015 ***
+    10     Load      lab Mann-Whitney 166.0 0.963322  ns
+
+Results saved to: c:\Users\HP\Desktop\BRSM-Project\results\per_level_statistical_results.txt

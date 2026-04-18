@@ -1,0 +1,345 @@
+import sys
+import os
+import warnings
+
+import pandas as pd
+import numpy as np
+import matplotlib.pyplot as plt
+from scipy.stats import spearmanr
+
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+from descriptive_statistics import (
+    load_phone_data, load_lab_data, clean_phone_data,
+    SINGLE_IDS, MULTIPLE_IDS
+)
+
+warnings.filterwarnings("ignore", category=FutureWarning)
+
+LEVELS = list(range(1, 11))
+LEVELS_EXT = list(range(11, 16))
+
+PER_LEVEL_PLOT_DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)), "per_level_plots")
+
+def build_per_level_rt(phone_single, phone_multiple, lab_single, lab_multiple):
+    frames = []
+
+    for phone_df in [phone_single, phone_multiple]:
+        subset = phone_df[
+            (phone_df["Completed"] == True)
+            & (phone_df["is_retry"] == False)
+        ].copy()
+
+        subset = subset.rename(columns={
+            "InitialResponseTime(ms)": "rt_ms",
+            "Level": "level",
+        })
+
+        frames.append(subset[["participant_id", "target_count", "device", "level", "rt_ms"]])
+
+    for lab_df in [lab_single, lab_multiple]:
+        subset = lab_df.copy()
+        subset["level"] = subset["trials.thisN"].astype(int) + 1
+        subset = subset.rename(columns={"response_time_ms": "rt_ms"})
+
+        frames.append(subset[["participant_id", "target_count", "device", "level", "rt_ms"]])
+
+    return pd.concat(frames, ignore_index=True)
+
+def plot_per_level_correlation(per_level):
+
+    fig, axes = plt.subplots(2, len(LEVELS), figsize=(4 * len(LEVELS), 8))
+
+    for row_idx, tc in enumerate(["single", "multiple"]):
+        for i, lvl in enumerate(LEVELS):
+
+            ax = axes[row_idx, i]
+
+            phone = per_level[
+                (per_level["target_count"] == tc)
+                & (per_level["device"] == "phone")
+                & (per_level["level"] == lvl)
+            ].set_index("participant_id")["rt_ms"]
+
+            lab = per_level[
+                (per_level["target_count"] == tc)
+                & (per_level["device"] == "lab")
+                & (per_level["level"] == lvl)
+            ].set_index("participant_id")["rt_ms"]
+
+            common = phone.index.intersection(lab.index)
+
+            if len(common) < 3:
+                ax.set_title(f"{tc} / L{lvl}\n(n={len(common)})")
+                ax.axis("off")
+                continue
+
+            phone_vals = phone.loc[common].values
+            lab_vals = lab.loc[common].values
+
+            ax.scatter(phone_vals, lab_vals, s=30, alpha=0.7)
+
+            rho, p = spearmanr(phone_vals, lab_vals)
+
+            lims = [
+                min(phone_vals.min(), lab_vals.min()),
+                max(phone_vals.max(), lab_vals.max())
+            ]
+            ax.plot(lims, lims, "--", alpha=0.3)
+
+            ax.set_xlim(lims)
+            ax.set_ylim(lims)
+
+            p_str = f"p={p:.3f}" if p >= 0.001 else "p<.001"
+
+            ax.annotate(f"ρ={rho:.2f}\n{p_str}\nn={len(common)}",
+                        xy=(0.05, 0.95), xycoords="axes fraction",
+                        fontsize=8, va="top")
+
+            ax.set_title(f"{tc.capitalize()} / L{lvl}")
+
+            if i == 0:
+                ax.set_ylabel("Lab RT")
+            ax.set_xlabel("Phone RT")
+
+    plt.suptitle("Per-Level Phone-Lab Correlation (Levels 1–10)", fontsize=14)
+    plt.tight_layout()
+    plt.savefig(os.path.join(PER_LEVEL_PLOT_DIR, "per_level_correlation.png"))
+    plt.close()
+
+
+def plot_per_level_correlation_extended(per_level):
+
+    fig, axes = plt.subplots(1, len(LEVELS_EXT), figsize=(4 * len(LEVELS_EXT), 4))
+
+    for i, lvl in enumerate(LEVELS_EXT):
+
+        ax = axes[i]
+
+        phone = per_level[
+            (per_level["target_count"] == "single")
+            & (per_level["device"] == "phone")
+            & (per_level["level"] == lvl)
+        ].set_index("participant_id")["rt_ms"]
+
+        lab = per_level[
+            (per_level["target_count"] == "single")
+            & (per_level["device"] == "lab")
+            & (per_level["level"] == lvl)
+        ].set_index("participant_id")["rt_ms"]
+
+        common = phone.index.intersection(lab.index)
+
+        if len(common) < 3:
+            ax.set_title(f"L{lvl}\n(n={len(common)})")
+            ax.axis("off")
+            continue
+
+        phone_vals = phone.loc[common].values
+        lab_vals = lab.loc[common].values
+
+        ax.scatter(phone_vals, lab_vals, s=30, alpha=0.7)
+
+        rho, p = spearmanr(phone_vals, lab_vals)
+
+        lims = [
+            min(phone_vals.min(), lab_vals.min()),
+            max(phone_vals.max(), lab_vals.max())
+        ]
+        ax.plot(lims, lims, "--", alpha=0.3)
+
+        ax.set_xlim(lims)
+        ax.set_ylim(lims)
+
+        p_str = f"p={p:.3f}" if p >= 0.001 else "p<.001"
+
+        ax.annotate(f"ρ={rho:.2f}\n{p_str}\nn={len(common)}",
+                    xy=(0.05, 0.95), xycoords="axes fraction",
+                    fontsize=8, va="top")
+
+        ax.set_title(f"Single / L{lvl}")
+
+        if i == 0:
+            ax.set_ylabel("Lab RT")
+        ax.set_xlabel("Phone RT")
+
+    plt.suptitle("Per-Level Correlation (Single: Levels 11–15)", fontsize=13)
+    plt.tight_layout()
+    plt.savefig(os.path.join(PER_LEVEL_PLOT_DIR, "per_level_correlation_11_15.png"))
+    plt.close()
+    
+def plot_player_rt_by_level(per_level):
+
+    import matplotlib.pyplot as plt
+
+    conditions = {
+        "single": list(range(1, 16)),    
+        "multiple": list(range(1, 11))    
+    }
+
+    fig, axes = plt.subplots(1, 2, figsize=(14, 5), sharey=True)
+
+    for i, (tc, levels) in enumerate(conditions.items()):
+
+        ax = axes[i]
+
+        subset = per_level[
+            (per_level["target_count"] == tc)
+            & (per_level["level"].isin(levels))
+        ]
+
+        participants = subset["participant_id"].unique()
+
+        for pid in participants:
+            pdata = subset[subset["participant_id"] == pid].sort_values("level")
+
+            if len(pdata) < 2:
+                continue
+
+            ax.plot(
+                pdata["level"],
+                pdata["rt_ms"],
+                alpha=0.3, linewidth=1
+            )
+
+        mean_trend = subset.groupby("level")["rt_ms"].mean()
+        ax.plot(mean_trend.index, mean_trend.values,
+                color="black", linewidth=3, label="Mean")
+
+        ax.set_title(f"{tc.capitalize()} (n={len(participants)})")
+        ax.set_xlabel("Level")
+        ax.set_ylabel("RT (ms)")
+        ax.set_xticks(levels)
+
+        ax.legend()
+
+    plt.suptitle("RT vs Level (All Participants)", fontsize=14)
+    plt.tight_layout()
+    plt.savefig(os.path.join(PER_LEVEL_PLOT_DIR, "rt_by_level_players.png"))
+    plt.close()
+
+def plot_individual_distribution(per_level):
+
+    import seaborn as sns
+
+    fig, axes = plt.subplots(1, 2, figsize=(14, 5), sharey=True)
+
+    conditions = {
+        "single": list(range(1, 16)),
+        "multiple": list(range(1, 11))
+    }
+
+    for i, (tc, levels) in enumerate(conditions.items()):
+        ax = axes[i]
+
+        subset = per_level[
+            (per_level["target_count"] == tc)
+            & (per_level["device"] == "phone")
+            & (per_level["level"].isin(levels))
+        ]
+
+        sns.boxplot(
+            data=subset,
+            x="level",
+            y="rt_ms",
+            ax=ax,
+            showfliers=False
+        )
+
+        sns.stripplot(
+            data=subset,
+            x="level",
+            y="rt_ms",
+            ax=ax,
+            color="black",
+            alpha=0.3,
+            size=3
+        )
+
+        ax.set_title(tc.capitalize())
+        ax.set_xlabel("Level")
+        ax.set_ylabel("RT (ms)")
+
+    plt.suptitle("RT Distribution per Level (with individuals)", fontsize=14)
+    plt.tight_layout()
+    plt.savefig(os.path.join(PER_LEVEL_PLOT_DIR, "rt_distribution.png"))
+    plt.close()
+    
+def plot_individual_rt_subplots(per_level):
+
+    import math
+    import matplotlib.pyplot as plt
+
+    conditions = {
+        "single": list(range(1, 16)),
+        "multiple": list(range(1, 11))
+    }
+
+    for tc, levels in conditions.items():
+
+        subset = per_level[
+            (per_level["target_count"] == tc)
+            & (per_level["device"] == "phone")   
+            & (per_level["level"].isin(levels))
+        ]
+
+        participants = sorted(subset["participant_id"].unique())
+        n = len(participants)
+
+        n_cols = 5
+        n_rows = math.ceil(n / n_cols)
+
+        fig, axes = plt.subplots(n_rows, n_cols,
+                                 figsize=(4 * n_cols, 3 * n_rows),
+                                 sharex=True, sharey=True)
+
+        axes = axes.flatten()
+
+        for i, pid in enumerate(participants):
+
+            ax = axes[i]
+
+            pdata = subset[subset["participant_id"] == pid].sort_values("level")
+
+            if len(pdata) < 2:
+                ax.set_title(f"P{pid}\n(no data)")
+                ax.axis("off")
+                continue
+
+            ax.plot(pdata["level"], pdata["rt_ms"], marker="o", linewidth=1.5)
+
+            ax.set_title(f"P{pid}", fontsize=9)
+            ax.set_xticks(levels)
+
+        for j in range(i + 1, len(axes)):
+            axes[j].axis("off")
+
+        fig.suptitle(f"{tc.capitalize()} — Individual RT vs Level", fontsize=14)
+
+        fig.supxlabel("Level")
+        fig.supylabel("RT (ms)")
+
+        plt.tight_layout()
+        plt.savefig(os.path.join(PER_LEVEL_PLOT_DIR, f"{tc}_individual_subplots.png"))
+        plt.close()
+
+def main():
+    os.makedirs(PER_LEVEL_PLOT_DIR, exist_ok=True)
+
+    phone_single = clean_phone_data(load_phone_data("single", SINGLE_IDS))
+    phone_multiple = clean_phone_data(load_phone_data("multiple", MULTIPLE_IDS))
+    lab_single = load_lab_data("single", SINGLE_IDS)
+    lab_multiple = load_lab_data("multiple", MULTIPLE_IDS)
+
+    per_level = build_per_level_rt(phone_single, phone_multiple, lab_single, lab_multiple)
+
+    plot_per_level_correlation(per_level)
+    plot_per_level_correlation_extended(per_level)
+    plot_player_rt_by_level(per_level)
+    plot_individual_distribution(per_level)
+    plot_individual_rt_subplots(per_level)
+
+    print("Saved correlation plots.")
+
+
+if __name__ == "__main__":
+    main()
