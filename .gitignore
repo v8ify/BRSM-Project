@@ -1,0 +1,7 @@
+plots/
+data_brsm/
+__pycache__/
+main.*
+*.pdf
+*.md
+presentation_notes/*

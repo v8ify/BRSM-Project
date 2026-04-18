@@ -13,7 +13,8 @@ sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 from descriptive_statistics import (
     load_phone_data, load_lab_data, clean_phone_data,
     aggregate_phone_participant, aggregate_lab_participant,
-    build_unified_summary, SINGLE_IDS, MULTIPLE_IDS, OUTPUT_DIR,
+    build_unified_summary, apply_rt_outlier_filter,
+    SINGLE_IDS, MULTIPLE_IDS, OUTPUT_DIR,
 )
 
 warnings.filterwarnings("ignore", category=FutureWarning)
@@ -58,6 +59,12 @@ def load_all_data():
     agg_lab_single = aggregate_lab_participant(lab_single)
     agg_lab_multiple = aggregate_lab_participant(lab_multiple)
 
+    (agg_phone_single, agg_phone_multiple,
+     agg_lab_single, agg_lab_multiple,
+     outlier_summary, outlier_rows) = apply_rt_outlier_filter(
+        agg_phone_single, agg_phone_multiple, agg_lab_single, agg_lab_multiple
+    )
+
     unified = build_unified_summary(
         agg_phone_single, agg_phone_multiple,
         agg_lab_single, agg_lab_multiple,
@@ -69,6 +76,8 @@ def load_all_data():
         "agg_phone_multiple": agg_phone_multiple,
         "agg_lab_single": agg_lab_single,
         "agg_lab_multiple": agg_lab_multiple,
+        "outlier_summary": outlier_summary,
+        "outlier_rows": outlier_rows,
     }
 
 
@@ -838,6 +847,21 @@ def main():
     print("\nLoading data...")
     data = load_all_data()
     unified = data["unified"]
+    outlier_summary = data.get("outlier_summary")
+    outlier_rows = data.get("outlier_rows")
+    if outlier_summary is not None:
+        print("  Participant RT outlier removal (IQR rule, 1.5x):")
+        outlier_summary_print = outlier_summary.copy()
+        outlier_summary_print["Lower"] = outlier_summary_print["Lower"].round(1)
+        outlier_summary_print["Upper"] = outlier_summary_print["Upper"].round(1)
+        print(outlier_summary_print.to_string(index=False))
+        if isinstance(outlier_rows, pd.DataFrame) and len(outlier_rows) > 0:
+            removed = outlier_rows.copy()
+            removed["mean_rt_ms"] = removed["mean_rt_ms"].round(1)
+            removed = removed.sort_values(["target_count", "device", "participant_id"])
+            print("  Removed participants:")
+            print(removed.to_string(index=False))
+
     print(f"  {len(unified)} rows, {unified['participant_id'].nunique()} participants")
 
     unified = run_assumption_checks(unified)

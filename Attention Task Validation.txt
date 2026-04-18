@@ -1,0 +1,46 @@
+Papers:
+ Anne M. Treisman, Garry Gelade,
+A feature-integration theory of attention,
+Cognitive Psychology,
+Volume 12, Issue 1,
+1980,
+ Gamification of Cognitive Assessment and Cognitive Training: A Systematic Review of Applications and Efficacy
+July 2016
+
+2. Brief on Experiment & Methodology
+ * Objective: To validate a newly developed "Selective Attention Game" by comparing it against a standard "Lab Task" (gold standard).
+ * Design: A 2 × 2 Mixed Factorial Design.
+   * Factor 1 (Between-Subjects): Target Load (Single Target vs. Multiple Target). Participants were randomly assigned to one of these two groups.
+   * Factor 2 (Within-Subjects): Modality (Game vs. Lab). Every participant completed the task in both modalities.
+ * Procedure:
+   * Group A (N=21): Performed the Single Target Game AND Single Target Lab Task.
+   * Group B (N=16): Performed the Multi-Target Game AND Multi-Target Lab Task.
+   * Counterbalancing: Half played game first, half did lab tasks first.
+3. Research Questions of Interest
+Students should investigate the following:
+ * RQ1 (Concurrent Validity): Is there a significant positive correlation between performance (RT/Accuracy) in the Game and the Lab Task?
+ * RQ2: Is performance significantly worse in the Multiple Target condition compared to the Single Target condition?
+ * RQ3: Does the gamified interface significantly alter performance compared to the standard lab interface?
+ * RQ4: What is the effect of level in the games?
+4. Statistical Metrics Required
+Students should apply the following concepts:
+ * Descriptive Statistics: Mean (M) and Standard Deviation (SD) for Reaction Time (RT) and Accuracy across all 4 cells.
+ * Correlation: Pearson’s r (or Spearman’s \rho) to check the correlation between Game and Lab scores for each group (Validity check).
+ * Hypothesis Testing:
+   * Mixed ANOVA (2×2): To test the interaction between Modality (Within) and Target Load (Between).
+   * Paired Samples t-test: To compare Game vs. Lab within each group.
+   * Independent Samples t-test: To compare Single vs. Multi groups.
+ * Reliability
+ Other advanced stuff based on student's course requirements
+5. Variables
+ * Independent Variables (IVs):
+   * Target Load (Categorical, Nominal): Levels = {Single, Multiple}.
+   * Modality (Categorical, Nominal): Levels = {Game, Lab}.
+ * Dependent Variables (DVs):
+   * Reaction Time (RT): Continuous (ms). 
+   * Accuracy / Error Rate: Continuous (ratio 0–1) or Discrete (count).
+ *RT / Accuracy (combines speed and accuracy).
+6. Participants
+ * Total Sample: N = 37
+ * Group A (Single Target): n = 2
+ * Group B (Multi-Target): n = 16

@@ -15,6 +15,7 @@ OUTPUT_DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)), "plots")
 
 SINGLE_IDS = range(1, 22)
 MULTIPLE_IDS = range(22, 38)
+OUTLIER_IQR_MULTIPLIER = 1.5
 
 sns.set_style("whitegrid")
 plt.rcParams.update({"figure.dpi": 150, "savefig.dpi": 150, "font.size": 10})
@@ -144,6 +145,77 @@ def aggregate_lab_participant(df):
             rec["mean_inter_target_ms"] = grp["mean_inter_target_ms"].mean()
         records.append(rec)
     return pd.DataFrame(records)
+
+
+def remove_rt_outliers_iqr(agg_df, rt_col="mean_rt_ms", iqr_multiplier=OUTLIER_IQR_MULTIPLIER):
+    df = agg_df.copy()
+    if rt_col not in df.columns:
+        return df, df.iloc[0:0].copy(), np.nan, np.nan
+
+    vals = df[rt_col].dropna()
+    if len(vals) < 4:
+        return df, df.iloc[0:0].copy(), np.nan, np.nan
+
+    q1 = vals.quantile(0.25)
+    q3 = vals.quantile(0.75)
+    iqr = q3 - q1
+    if pd.isna(iqr) or iqr == 0:
+        return df, df.iloc[0:0].copy(), np.nan, np.nan
+
+    lower = q1 - iqr_multiplier * iqr
+    upper = q3 + iqr_multiplier * iqr
+    keep_mask = df[rt_col].isna() | ((df[rt_col] >= lower) & (df[rt_col] <= upper))
+
+    filtered = df.loc[keep_mask].reset_index(drop=True)
+    outliers = df.loc[~keep_mask].copy().reset_index(drop=True)
+    return filtered, outliers, lower, upper
+
+
+def apply_rt_outlier_filter(agg_phone_single, agg_phone_multiple,
+                            agg_lab_single, agg_lab_multiple,
+                            iqr_multiplier=OUTLIER_IQR_MULTIPLIER):
+    condition_frames = [
+        ("single", "phone", agg_phone_single),
+        ("multiple", "phone", agg_phone_multiple),
+        ("single", "lab", agg_lab_single),
+        ("multiple", "lab", agg_lab_multiple),
+    ]
+
+    filtered_frames = []
+    summary_rows = []
+    outlier_rows = []
+
+    for tc, dev, agg in condition_frames:
+        filtered, outliers, lower, upper = remove_rt_outliers_iqr(
+            agg, rt_col="mean_rt_ms", iqr_multiplier=iqr_multiplier
+        )
+        filtered_frames.append(filtered)
+
+        summary_rows.append({
+            "Condition": f"{tc}/{dev}",
+            "N_before": len(agg),
+            "N_removed": len(outliers),
+            "N_after": len(filtered),
+            "Lower": lower,
+            "Upper": upper,
+        })
+
+        if len(outliers) > 0:
+            outlier_rows.append(outliers[["participant_id", "target_count", "device", "mean_rt_ms"]])
+
+    summary_df = pd.DataFrame(summary_rows)
+    if outlier_rows:
+        outlier_df = pd.concat(outlier_rows, ignore_index=True)
+    else:
+        outlier_df = pd.DataFrame(columns=["participant_id", "target_count", "device", "mean_rt_ms"])
+
+    return (*filtered_frames, summary_df, outlier_df)
+
+
+def _exclude_participants(df, participant_ids):
+    if not participant_ids:
+        return df
+    return df[~df["participant_id"].isin(participant_ids)].copy()
 
 
 def build_unified_summary(agg_phone_single, agg_phone_multiple,
@@ -568,6 +640,47 @@ def main():
     agg_phone_multiple = aggregate_phone_participant(phone_multiple)
     agg_lab_single = aggregate_lab_participant(lab_single)
     agg_lab_multiple = aggregate_lab_participant(lab_multiple)
+
+    print("Removing participant RT outliers (IQR rule, 1.5x)...")
+    (agg_phone_single, agg_phone_multiple,
+     agg_lab_single, agg_lab_multiple,
+     outlier_summary, outlier_rows) = apply_rt_outlier_filter(
+        agg_phone_single, agg_phone_multiple, agg_lab_single, agg_lab_multiple
+    )
+    outlier_summary_print = outlier_summary.copy()
+    outlier_summary_print["Lower"] = outlier_summary_print["Lower"].round(1)
+    outlier_summary_print["Upper"] = outlier_summary_print["Upper"].round(1)
+    print(outlier_summary_print.to_string(index=False))
+    if len(outlier_rows) > 0:
+        removed = outlier_rows.copy()
+        removed["mean_rt_ms"] = removed["mean_rt_ms"].round(1)
+        removed = removed.sort_values(["target_count", "device", "participant_id"])
+        print("  Removed participants:")
+        print(removed.to_string(index=False))
+    else:
+        print("  No participant RT outliers detected.")
+
+    out_phone_single = set(outlier_rows[
+        (outlier_rows["target_count"] == "single")
+        & (outlier_rows["device"] == "phone")
+    ]["participant_id"])
+    out_phone_multiple = set(outlier_rows[
+        (outlier_rows["target_count"] == "multiple")
+        & (outlier_rows["device"] == "phone")
+    ]["participant_id"])
+    out_lab_single = set(outlier_rows[
+        (outlier_rows["target_count"] == "single")
+        & (outlier_rows["device"] == "lab")
+    ]["participant_id"])
+    out_lab_multiple = set(outlier_rows[
+        (outlier_rows["target_count"] == "multiple")
+        & (outlier_rows["device"] == "lab")
+    ]["participant_id"])
+
+    phone_single = _exclude_participants(phone_single, out_phone_single)
+    phone_multiple = _exclude_participants(phone_multiple, out_phone_multiple)
+    lab_single = _exclude_participants(lab_single, out_lab_single)
+    lab_multiple = _exclude_participants(lab_multiple, out_lab_multiple)
 
     unified = build_unified_summary(agg_phone_single, agg_phone_multiple,
                                     agg_lab_single, agg_lab_multiple)
